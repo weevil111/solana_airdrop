@@ -12,6 +12,8 @@ export default function Home() {
   const [message, setMessage] = useState("");
   const [isSnackbarHidden, setIsSnackbarHidden] = useState(true);
   const [snackbarColor, setSnackbarColor] = useState("");
+  const [txnLink, setTxnLink] = useState("");
+  const [disableBtn, setDisableBtn] = useState(false);
 
   function showSnackbar({ message, timeout = 3000, color = "" } = {}) {
     setMessage(message);
@@ -34,6 +36,8 @@ export default function Home() {
       return;
     }
     try {
+      setDisableBtn(true);
+      setTxnLink("");
       const res = await fetch("/api/solana", {
         method: "POST",
         headers: {
@@ -44,37 +48,61 @@ export default function Home() {
       const result = await res.json();
       if (result.success) {
         showSnackbar({ message: "Airdrop was successful", color: "success" });
+        setTxnLink(result.message);
       } else {
         showSnackbar({ message: result.message, color: "error" });
       }
     } catch (err) {
       console.log(err);
+    } finally {
+      setDisableBtn(false);
     }
   }
 
   return (
-    <main className={styles.main}>
-      <h1 className={styles.h1}>🔥 Airdrop SOL on devnet 🔥</h1>
-      <input
-        type="text"
-        name="address"
-        placeholder="Enter Solana account address..."
-        value={address}
-        onChange={(e) => setAddress(e.target.value)}
-        className={styles.input}
-      />
-      <input
-        type="number"
-        name="sol"
-        min={1}
-        value={sol}
-        onChange={(e) => setSol(e.target.value)}
-        className={styles.input}
-      />
-      <button className={styles.button} onClick={aridrop}>
-        Airdrop 😎
-      </button>
-      <p className={styles.bottom}>Hi Harkirat! You're an inspiration 😇 </p>
+    <>
+      <main className={styles.main}>
+        <h1 className={styles.h1}>🔥 Airdrop SOL on devnet 🔥</h1>
+        <input
+          type="text"
+          name="address"
+          placeholder="Enter Solana account address..."
+          value={address}
+          onChange={(e) => setAddress(e.target.value)}
+          className={styles.input}
+        />
+        <input
+          type="number"
+          name="sol"
+          min={1}
+          value={sol}
+          onChange={(e) => setSol(e.target.value)}
+          className={styles.input}
+        />
+        <button
+          className={styles.button}
+          onClick={aridrop}
+          disabled={disableBtn}
+        >
+          {disableBtn ? (
+            <>
+              <i className="fa fa-cog fa-spin"></i>
+              Working 👨‍💻
+            </>
+          ) : (
+            <>Airdrop 😎</>
+          )}
+        </button>
+        {txnLink && (
+          <div className={styles.success}>
+            The transaction was successful.{" "}
+            <a href={txnLink} target="_blank">
+              {" "}
+              Click to see transaction details
+            </a>
+          </div>
+        )}
+      </main>
       <div
         className={`snackbar ${
           isSnackbarHidden ? "" : "show"
@@ -82,6 +110,15 @@ export default function Home() {
       >
         {message}
       </div>
-    </main>
+      <span className={styles["bottom-left"]}>
+        Hi Harkirat! You're an inspiration 😇
+      </span>
+      <span className={styles["bottom-right"]}>
+        Developed by{" "}
+        <a target="_blank" href="https://www.github.com/weevil111">
+          Abhinav Parag Mishra
+        </a>
+      </span>
+    </>
   );
 }
