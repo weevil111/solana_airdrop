@@ -3,6 +3,10 @@
 import { Inter } from "next/font/google";
 import { useState } from "react";
 import styles from "./page.module.css";
+import * as SOLANA from "@solana/web3.js";
+
+const { Connection, PublicKey, LAMPORTS_PER_SOL, clusterApiUrl } = SOLANA;
+const SOLANA_CONNECTION = new Connection(clusterApiUrl("devnet"));
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -27,7 +31,7 @@ export default function Home() {
     }, timeout);
   }
 
-  async function aridrop() {
+  async function airdrop() {
     if (!address || !sol) {
       showSnackbar({
         message: "Please enter all the fields",
@@ -35,25 +39,35 @@ export default function Home() {
       });
       return;
     }
+
+    const AIRDROP_AMOUNT = sol * LAMPORTS_PER_SOL;
+
     try {
       setDisableBtn(true);
       setTxnLink("");
-      const res = await fetch("/api/solana", {
-        method: "POST",
-        headers: {
-          "content-type": "application/json",
+
+      const signature = await SOLANA_CONNECTION.requestAirdrop(
+        new PublicKey(address),
+        AIRDROP_AMOUNT
+      );
+      const { blockhash, lastValidBlockHeight } =
+        await SOLANA_CONNECTION.getLatestBlockhash();
+      await SOLANA_CONNECTION.confirmTransaction(
+        {
+          blockhash,
+          lastValidBlockHeight,
+          signature,
         },
-        body: JSON.stringify({ pubkey: address, amount: sol }),
-      });
-      const result = await res.json();
-      if (result.success) {
-        showSnackbar({ message: "Airdrop was successful", color: "success" });
-        setTxnLink(result.message);
-      } else {
-        showSnackbar({ message: result.message, color: "error" });
-      }
+        "finalized"
+      );
+      showSnackbar({ message: "Airdrop was successful", color: "success" });
+      setTxnLink(`https://explorer.solana.com/tx/${signature}?cluster=devnet`);
     } catch (err) {
       console.log(err);
+      showSnackbar({
+        message: "Something went wrong. Please try again",
+        color: "error",
+      });
     } finally {
       setDisableBtn(false);
     }
@@ -81,7 +95,7 @@ export default function Home() {
         />
         <button
           className={styles.button}
-          onClick={aridrop}
+          onClick={airdrop}
           disabled={disableBtn}
         >
           {disableBtn ? (

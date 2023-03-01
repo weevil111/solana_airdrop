@@ -1,7 +1,6 @@
 const SOLANA = require("@solana/web3.js");
 const { Connection, PublicKey, LAMPORTS_PER_SOL, clusterApiUrl } = SOLANA;
 const SOLANA_CONNECTION = new Connection(clusterApiUrl("devnet"));
-const WALLET_ADDRESS = "YOUR_PHANTOM_WALLET_ADDRESS"; //👈 Replace with your wallet address
 
 export async function POST(request) {
   try {
