@@ -9,9 +9,28 @@ const inter = Inter({ subsets: ["latin"] });
 export default function Home() {
   const [address, setAddress] = useState("");
   const [sol, setSol] = useState(1);
+  const [message, setMessage] = useState("");
+  const [isSnackbarHidden, setIsSnackbarHidden] = useState(true);
+  const [snackbarColor, setSnackbarColor] = useState("");
+
+  function showSnackbar({ message, timeout = 3000, color = "" } = {}) {
+    setMessage(message);
+    setIsSnackbarHidden(false);
+    setSnackbarColor(color);
+
+    // Hide it after 3 seconds...
+    setTimeout(function () {
+      setIsSnackbarHidden(true);
+      setSnackbarColor("");
+    }, timeout);
+  }
 
   async function aridrop() {
     if (!address || !sol) {
+      showSnackbar({
+        message: "Please enter all the fields",
+        color: "error",
+      });
       return;
     }
     try {
@@ -22,8 +41,12 @@ export default function Home() {
         },
         body: JSON.stringify({ pubkey: address, amount: sol }),
       });
-      const json = await res.json();
-      console.log(json);
+      const result = await res.json();
+      if (result.success) {
+        showSnackbar({ message: "Airdrop was successful", color: "success" });
+      } else {
+        showSnackbar({ message: result.message, color: "error" });
+      }
     } catch (err) {
       console.log(err);
     }
@@ -51,6 +74,14 @@ export default function Home() {
       <button className={styles.button} onClick={aridrop}>
         Airdrop 😎
       </button>
+      <p className={styles.bottom}>Hi Harkirat! You're an inspiration 😇 </p>
+      <div
+        className={`snackbar ${
+          isSnackbarHidden ? "" : "show"
+        } ${snackbarColor}`}
+      >
+        {message}
+      </div>
     </main>
   );
 }

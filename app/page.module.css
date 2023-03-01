@@ -44,3 +44,9 @@
 .button:hover {
   background-color: #192a56;
 }
+
+.bottom {
+  position: fixed;
+  bottom: 8px;
+  left: 16px;
+}
