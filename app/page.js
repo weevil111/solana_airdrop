@@ -11,9 +11,16 @@ export default function Home() {
   const [sol, setSol] = useState(1);
 
   async function aridrop() {
+    if (!address || !sol) {
+      return;
+    }
     try {
       const res = await fetch("/api/solana", {
         method: "POST",
+        headers: {
+          "content-type": "application/json",
+        },
+        body: JSON.stringify({ pubkey: address, amount: sol }),
       });
       const json = await res.json();
       console.log(json);

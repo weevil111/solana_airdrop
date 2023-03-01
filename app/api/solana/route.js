@@ -32,7 +32,7 @@ export async function POST(request) {
     );
     return Response.json({
       success: true,
-      message: `Tx Complete: https://explorer.solana.com/tx/${signature}?cluster=devnet`,
+      message: `https://explorer.solana.com/tx/${signature}?cluster=devnet`,
     });
   } catch (err) {
     console.log(err);
