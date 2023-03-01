@@ -9,6 +9,8 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@solana/web3.js": "^1.73.3",
+    "encoding": "^0.1.13",
     "next": "13.2.2",
     "react": "18.2.0",
     "react-dom": "18.2.0"
