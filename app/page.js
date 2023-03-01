@@ -19,7 +19,7 @@ export default function Home() {
   const [txnLink, setTxnLink] = useState("");
   const [disableBtn, setDisableBtn] = useState(false);
 
-  function showSnackbar({ message, timeout = 3000, color = "" } = {}) {
+  function showSnackbar({ message, timeout = 5000, color = "" } = {}) {
     setMessage(message);
     setIsSnackbarHidden(false);
     setSnackbarColor(color);
@@ -64,10 +64,17 @@ export default function Home() {
       setTxnLink(`https://explorer.solana.com/tx/${signature}?cluster=devnet`);
     } catch (err) {
       console.log(err);
-      showSnackbar({
-        message: "Something went wrong. Please try again",
-        color: "error",
-      });
+      if (err.name === "SolanaJSONRPCError") {
+        showSnackbar({
+          message: "Limit reached for this account. Please try a different one",
+          color: "error",
+        });
+      } else {
+        showSnackbar({
+          message: "Something went wrong. Please try again",
+          color: "error",
+        });
+      }
     } finally {
       setDisableBtn(false);
     }
